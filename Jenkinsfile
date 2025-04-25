@@ -18,25 +18,25 @@ pipeline {
       }
     }
 
-    stage('Start Database') {
+    stage('Test Backend') {
       steps {
-        sh '''
-          docker run --name postgres_ci_cd \
-            -e POSTGRES_USER=$POSTGRES_USER \
-            -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
-            -e POSTGRES_DB=$POSTGRES_DB \
-            -p $POSTGRES_PORT:5432 \
-            -d postgres:16
-          sleep 10
-        '''
+        script {
+          docker.image('postgres:16').withRun("-e POSTGRES_USER=${POSTGRES_USER} -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -e POSTGRES_DB=${POSTGRES_DB} -p ${POSTGRES_PORT}:5432") { dbContainer ->
+            sh "sleep 10" // kurze Pause, bis DB fertig ist
+
+            dir('backend') {
+              sh 'chmod +x mvnw'
+              sh "./mvnw clean test -Dspring.datasource.url=jdbc:postgresql://localhost:${POSTGRES_PORT}/${POSTGRES_DB}"
+            }
+          }
+        }
       }
     }
 
     stage('Build Backend') {
       steps {
         dir('backend') {
-          sh 'chmod +x mvnw'
-          sh './mvnw clean package'
+          sh './mvnw clean package -DskipTests'
         }
       }
     }
@@ -73,13 +73,6 @@ pipeline {
             """
           }
         }
-      }
-    }
-
-    stage('Stop Database') {
-      steps {
-        sh 'docker stop postgres_ci_cd || true'
-        sh 'docker rm postgres_ci_cd || true'
       }
     }
   }
