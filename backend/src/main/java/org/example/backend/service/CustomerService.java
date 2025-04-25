@@ -32,7 +32,8 @@ public class CustomerService {
         Customer customer = customerRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Kunde nicht gefunden mit ID: " + id));
 
-        customer.setName(customerDetails.getName());
+        customer.setFirstname(customerDetails.getFirstname());
+        customer.setLastname(customerDetails.getLastname());
         customer.setEmail(customerDetails.getEmail());
         customer.setPhone(customerDetails.getPhone());
         customer.setAddress(customerDetails.getAddress());

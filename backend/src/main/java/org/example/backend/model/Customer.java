@@ -9,7 +9,8 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    private String firstname;
+    private String lastname;
 
     private String email;
 
@@ -17,24 +18,41 @@ public class Customer {
 
     private String address;
 
-    public Customer(Long id, String name, String email, String phone, String address) {
+    public Customer() {
+
+    }
+
+    public Customer(Long id, String firstname, String lastname, String email, String phone, String address) {
         this.id = id;
-        this.name = name;
+        this.firstname = firstname;
+        this.lastname = lastname;
         this.email = email;
         this.phone = phone;
         this.address = address;
     }
 
-    public Customer() {
-
+    public Long getId() {
+        return id;
     }
 
-    public String getName() {
-        return name;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getFirstname() {
+        return firstname;
+    }
+
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
+    }
+
+    public String getLastname() {
+        return lastname;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
     }
 
     public String getEmail() {
