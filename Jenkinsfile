@@ -11,6 +11,12 @@ pipeline {
     POSTGRES_PORT = "5432"
   }
 
+  tools {
+    jdk 'jdk-17'
+    maven 'Maven 3.8.8'
+    nodejs 'node-18'
+  }
+
   stages {
     stage('Checkout') {
       steps {
@@ -21,71 +27,71 @@ pipeline {
     stage('Test Backend') {
       steps {
         script {
-          docker.image('postgres:16').withRun("-e POSTGRES_USER=${POSTGRES_USER} -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -e POSTGRES_DB=${POSTGRES_DB} -p ${POSTGRES_PORT}:5432") { dbContainer ->
-            sh "sleep 10" // kurze Pause, bis DB fertig ist
-
+          docker.image('postgres:16').withRun("-e POSTGRES_USER=${POSTGRES_USER} -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -e POSTGRES_DB=${POSTGRES_DB} -p ${POSTGRES_PORT}:5432") {
+            sh 'sleep 10'
             dir('backend') {
               sh 'chmod +x mvnw'
-              sh "./mvnw clean test -Dspring.datasource.url=jdbc:postgresql://localhost:${POSTGRES_PORT}/${POSTGRES_DB}"
+              sh "./mvnw clean verify -Dspring.datasource.url=jdbc:postgresql://localhost:${POSTGRES_PORT}/${POSTGRES_DB}"
             }
           }
         }
       }
     }
 
-    stage('Build Backend') {
-      steps {
-        dir('backend') {
-          sh './mvnw clean package -DskipTests'
-        }
-      }
-    }
-
-    stage('Build Frontend') {
+    stage('Test Frontend') {
       steps {
         dir('frontend') {
           sh 'npm ci'
-          sh 'npm run build'
+          sh 'npm run test'
         }
       }
     }
 
-    stage('Docker Build & Push') {
+    stage('Build Backend Docker Image') {
       steps {
-        withCredentials([usernamePassword(
-          credentialsId: env.DOCKER_CREDENTIALS_ID,
-          usernameVariable: 'DOCKER_USER',
-          passwordVariable: 'DOCKER_PASS'
-        )]) {
-          sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
-
-          dir('backend') {
-            sh """
-              docker build -t $BACKEND_IMAGE .
-              docker push $BACKEND_IMAGE
-            """
-          }
-
-          dir('frontend') {
-            sh """
-              docker build -t $FRONTEND_IMAGE .
-              docker push $FRONTEND_IMAGE
-            """
-          }
+        dir('backend') {
+          sh "docker build -t ${BACKEND_IMAGE} ."
         }
+      }
+    }
+
+    stage('Build Frontend Docker Image') {
+      steps {
+        dir('frontend') {
+          sh "docker build -t ${FRONTEND_IMAGE} ."
+        }
+      }
+    }
+
+    stage('Push Docker Images') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+          sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+          sh "docker push ${BACKEND_IMAGE}"
+          sh "docker push ${FRONTEND_IMAGE}"
+        }
+      }
+    }
+
+    stage('(Optional) Deploy to Server') {
+      when {
+        branch 'master'
+      }
+      steps {
+        echo "Deployment kann hier z.B. via SSH, Kubernetes oder Docker Compose erfolgen"
       }
     }
   }
 
   post {
+    always {
+      cleanWs()
+    }
     success {
-      echo "✅ Build & Push erfolgreich abgeschlossen!"
+      echo "✅ CI/CD Pipeline erfolgreich abgeschlossen!"
     }
     failure {
       echo "❌ Pipeline fehlgeschlagen."
-    }
-    always {
-      cleanWs()
     }
   }
 }
