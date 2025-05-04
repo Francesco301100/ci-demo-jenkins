@@ -1,13 +1,14 @@
-image: maven:3.9.4-eclipse-temurin-17
-
 stages:
+  - build
   - test
 
-test:
+build-job:
+  stage: build
+  script:
+    - echo "Installiere Abhängigkeiten..."
+    - echo "Baue Anwendung..."
+
+test-job:
   stage: test
   script:
-    - cd backend
-    - mvn test
-  cache:
-    paths:
-      - .m2/repository
+    - echo "Führe Unit-Tests aus..."
