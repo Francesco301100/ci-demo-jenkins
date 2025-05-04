@@ -4,4 +4,4 @@ stages:
 test:
   stage: test
   script:
-    - echo "Führe Tests aus..."
+    - mvn test
