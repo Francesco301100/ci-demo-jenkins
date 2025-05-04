@@ -6,4 +6,8 @@ stages:
 test:
   stage: test
   script:
-    - echo "Baue das Projekt..."
+    - cd backend
+    - mvn test
+  cache:
+    paths:
+      - .m2/repository
