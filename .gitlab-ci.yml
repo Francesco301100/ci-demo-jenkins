@@ -6,7 +6,9 @@ stages:
 test:
   stage: test
   script:
+    - cd backend
     - mvn test
+
   cache:
     paths:
       - .m2/repository
