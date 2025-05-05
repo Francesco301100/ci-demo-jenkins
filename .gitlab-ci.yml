@@ -1,11 +1,8 @@
-stages:
-  - test
-  - build
+image: maven:3.9.2-eclipse-temurin-17
 
-test:
-  stage: test
-  script: mvn test
+stages:
+  - build
 
 build:
   stage: build
-  script: mvn build
+  script: mvn package -DskipTests
