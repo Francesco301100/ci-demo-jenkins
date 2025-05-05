@@ -1,4 +1,4 @@
-image: maven:3.9.2-eclipse-temurin-17
+image: docker:20.10.16
 
 stages:
   - docker
@@ -6,16 +6,15 @@ stages:
 variables:
   IMAGE_NAME: simonettifr/demo-app
   IMAGE_TAG: springboot-app-1.0
+  DOCKER_HOST: tcp://docker:2375/
+  DOCKER_TLS_CERTDIR: ""
 
 build_image:
-  image: docker:20.10.16
+  stage: docker
   services:
     - docker:20.10.16-dind
   before_script:
-    - docker login -u REGISTRY_USER -p $REGISTRY_PASS
-  variables:
-    DOCKER_HOST: tcp://docker:2375/
-    DOCKER_TLS_CERTDIR: ""
+    - echo "$REGISTRY_PASS" | docker login -u "$REGISTRY_USER" --password-stdin
   script:
-    - docker build -t  $IMAGE_NAME:$IMAGE_TAG .
+    - docker build -t $IMAGE_NAME:$IMAGE_TAG .
     - docker push $IMAGE_NAME:$IMAGE_TAG
