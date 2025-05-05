@@ -4,8 +4,8 @@ stages:
 
 test:
   stage: test
-  script: "Nun wird getestet..."
+  script: echo "Nun wird getestet..."
 
 build:
   stage: build
-  script: "Nun wird gebaut..."
+  script: echo "Nun wird gebaut..."
