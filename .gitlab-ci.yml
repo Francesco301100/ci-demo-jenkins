@@ -1,14 +1,11 @@
 stages:
-  - build
   - test
+  - build
 
-build-job:
-  stage: build
-  script:
-    - echo "Installiere Abhängigkeiten..."
-    - echo "Baue Anwendung..."
-
-test-job:
+test:
   stage: test
-  script:
-    - echo "Führe Unit-Tests aus..."
+  script: "Nun wird getestet..."
+
+build:
+  stage: build
+  script: "Nun wird gebaut..."
