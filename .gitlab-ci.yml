@@ -1,6 +1,7 @@
 image: docker:20.10.16
 
 stages:
+  - test
   - docker
 
 variables:
@@ -8,7 +9,10 @@ variables:
   IMAGE_TAG: springboot-app-1.0
   DOCKER_HOST: tcp://docker:2375/
   DOCKER_TLS_CERTDIR: ""
-
+test_backend:
+  script:
+    - cd backend
+    - mvn test
 build_image:
   stage: docker
   services:
