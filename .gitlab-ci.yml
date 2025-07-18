@@ -6,8 +6,8 @@ backend_test:
   image: maven:3.9-eclipse-temurin-17
   stage: test
   script:
-    - cd backe
-    - mvn clean tes
+    - cd backend
+    - mvn clean test
 
 backend_build:
   image: maven:3.9-eclipse-temurin-17
