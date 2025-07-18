@@ -1,18 +1,32 @@
 stages:
+  - test
   - build
+
+backend_test:
+  image: maven:3.9-eclipse-temurin-17
+  stage: test
+  script:
+    - cd backend
+    - mvn clean test
 
 backend_build:
   image: maven:3.9-eclipse-temurin-17
   stage: build
   script:
     - cd backend
-    - mvn clean install
+    - mvn package -DskipTests
+
+frontend_test:
+  image: node:20
+  stage: test
+  script:
+    - cd frontend
+    - npm ci
+    - npm run test
 
 frontend_build:
   image: node:20
   stage: build
   script:
     - cd frontend
-    - npm ci
-    - npm run test
     - npm run build
