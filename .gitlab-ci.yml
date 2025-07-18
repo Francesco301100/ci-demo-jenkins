@@ -2,6 +2,10 @@ stages:
   - test
   - build
 
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"'
+    
 backend_test:
   image: maven:3.9-eclipse-temurin-17
   stage: test
