@@ -1,17 +1,10 @@
 stages:
-  - test
   - build
+  - test
 
 workflow:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"'
-    
-backend_test:
-  image: maven:3.9-eclipse-temurin-17
-  stage: test
-  script:
-    - cd backend
-    - mvn clean test
 
 backend_build:
   image: maven:3.9-eclipse-temurin-17
@@ -20,13 +13,6 @@ backend_build:
     - cd backend
     - mvn package -DskipTests
 
-frontend_test:
-  image: node:20
-  stage: test
-  script:
-    - cd frontend
-    - npm ci
-    - npm run test
 
 frontend_build:
   image: node:20
@@ -35,3 +21,19 @@ frontend_build:
     - cd frontend
     - npm ci
     - npm run build
+
+    
+backend_test:
+  image: maven:3.9-eclipse-temurin-17
+  stage: test
+  script:
+    - cd backend
+    - mvn clean test
+
+frontend_test:
+  image: node:20
+  stage: test
+  script:
+    - cd frontend
+    - npm ci
+    - npm run test

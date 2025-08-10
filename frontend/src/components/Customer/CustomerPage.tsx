@@ -14,7 +14,7 @@ const CustomersPage = () => {
 
     useEffect(() => {
         fetchCustomers();
-    }, []);
+    }, [fetchCustomers]);
 
     const openCreateModal = () => {
         setModalMode("create");
