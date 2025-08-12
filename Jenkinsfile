@@ -28,6 +28,7 @@ pipeline {
                     steps {
                         dir('backend') {
                             sh 'mvn test'
+                            echo 'wow'
                         }
                     }
                 }
