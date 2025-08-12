@@ -8,6 +8,7 @@ pipeline {
                     steps {
                         dir('backend') {
                             sh 'mvn clean install -DskipTests'
+                            echo "s"
                         }
                     }
                 }
@@ -16,7 +17,6 @@ pipeline {
                         dir('frontend') {
                             sh 'npm install'
                             sh 'npm run build'
-                            sh 'he'
                         }
                     }
                 }
