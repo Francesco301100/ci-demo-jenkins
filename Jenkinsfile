@@ -8,6 +8,7 @@ pipeline {
                     steps {
                         dir('backend') {
                             sh 'mvn clean install -DskipTests'
+                            echo "s"
                         }
                     }
                 }
