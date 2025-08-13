@@ -1,5 +1,5 @@
 pipeline {
-    agent { label ’Bachelorarbeit’ }
+    agent { label 'Bachelorarbeit' }
 
     stages {
         stage('Build Backend & Frontend') {
