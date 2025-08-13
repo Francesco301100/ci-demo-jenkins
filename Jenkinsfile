@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent { label ’Bachelorarbeit’ }
 
     stages {
         stage('Build Backend & Frontend') {
@@ -28,7 +28,6 @@ pipeline {
                     steps {
                         dir('backend') {
                             sh 'mvn test'
-                            echo 'wow'
                         }
                     }
                 }
