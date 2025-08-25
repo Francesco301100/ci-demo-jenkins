@@ -22,7 +22,7 @@ pipeline {
             }
         }
 
-        stage('Test Backend & Frontend') {
+        stage('Test Backen & Frontend') {
             parallel {
                 stage('Test Backend') {
                     steps {
