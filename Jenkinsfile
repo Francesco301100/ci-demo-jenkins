@@ -40,5 +40,23 @@ pipeline {
                 }
             }
         }
+
+        stage('SonarQube Analysis') {
+            steps {
+                dir('backend') {
+                    withSonarQubeEnv('Sonar') {
+                        sh "mvn clean verify sonar:sonar"
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        failure {
+            mail to: "francesco.simonetti@hm.edu",
+                 subject: "Fehler in: ${currentBuild.fullDisplayName}",
+                 body: "Pipeline ist fehlgeschlagen ${env.BUILD_URL}"
+        }
     }
 }
