@@ -1,51 +1,96 @@
 pipeline {
-    agent any
+    agent { label 'bachelorarbeit' }
+
+    environment {
+        IMAGE_NAME_BACKEND  = "simonettifr/backend"
+        IMAGE_NAME_FRONTEND = "simonettifr/frontend"
+    }
 
     stages {
-        stage('Build Backend & Frontend') {
+        stage('Pipelines') {
             parallel {
-                stage('Build Backend') {
-                    steps {
-                        dir('backend') {
-                            sh 'mvn clean install -DskipTests'
+                stage('Backend') {
+                    stages {
+                        stage('Build Backend') {
+                            steps {
+                                dir('backend') {
+                                    sh 'mvn clean package -DskipTests'
+                                }
+                            }
+                        }
+                        stage('Test Backend') {
+                            steps {
+                                dir('backend') {
+                                    sh 'mvn test'
+                                }
+                            }
+                        }
+                        stage('SonarQube Backend') {
+                            steps {
+                                dir('backend') {
+                                    withSonarQubeEnv('Sonar') {
+                                        sh "mvn clean verify sonar:sonar"
+                                    }
+                                }
+                            }
+                        }
+                        stage('Docker Backend') {
+                            steps {
+                                withDockerRegistry([credentialsId: 'dockerhub-creds', url: '']) {
+                                    sh '''
+                                        docker build -t $IMAGE_NAME_BACKEND:latest ./backend
+                                        docker push $IMAGE_NAME_BACKEND:latest
+                                    '''
+                                }
+                            }
                         }
                     }
                 }
-                stage('Build Frontend') {
-                    steps {
-                        dir('frontend') {
-                            sh 'npm install'
-                            sh 'npm run build'
-                        }
-                    }
-                }
-            }
-        }
 
-        stage('Test Backen & Frontend') {
-            parallel {
-                stage('Test Backend') {
-                    steps {
-                        dir('backend') {
-                            sh 'mvn test'
+                stage('Frontend') {
+                    stages {
+                        stage('Build Frontend') {
+                            steps {
+                                dir('frontend') {
+                                    sh 'npm ci && npm run build'
+                                }
+                            }
                         }
-                    }
-                }
-                stage('Test Frontend') {
-                    steps {
-                        dir('frontend') {
-                            sh 'npm run test'
+                        stage('Test Frontend') {
+                            steps {
+                                dir('frontend') {
+                                    sh 'npm run test'
+                                }
+                            }
                         }
-                    }
-                }
-            }
-        }
-
-        stage('SonarQube Analysis') {
-            steps {
-                dir('backend') {
-                    withSonarQubeEnv('Sonar') {
-                        sh "mvn clean verify sonar:sonar"
+                        stage('SonarQube Frontend') {
+                            steps {
+                                dir('frontend') {
+                                    withSonarQubeEnv('Sonar') {
+                                        script {
+                                            def scannerHome = tool 'SonarScanner'
+                                            sh """
+                                                ${scannerHome}/bin/sonar-scanner \
+                                                  -Dsonar.projectKey=Francesco301100_test123_frontend \
+                                                  -Dsonar.organization=francesco301100 \
+                                                  -Dsonar.sources=src \
+                                                  -Dsonar.host.url=https://sonarcloud.io
+                                            """
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        stage('Docker Frontend') {
+                            steps {
+                                withDockerRegistry([credentialsId: 'dockerhub-creds', url: '']) {
+                                    sh '''
+                                        docker build -t $IMAGE_NAME_FRONTEND:latest ./frontend
+                                        docker push $IMAGE_NAME_FRONTEND:latest
+                                    '''
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -54,9 +99,9 @@ pipeline {
 
     post {
         failure {
-            mail to: "francesco.simonetti@hm.edu",
+            mail to: "francescomnm@gmail.com",
                  subject: "Fehler in: ${currentBuild.fullDisplayName}",
-                 body: "Pipeline ist fehlgeschlagen ${env.BUILD_URL}"
+                 body: "Pipeline ist fehlgeschlagen: ${env.BUILD_URL}"
         }
     }
 }
