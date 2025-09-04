@@ -34,7 +34,7 @@ pipeline {
                                 }
                             }
                         }
-                        stage('Docker Backend') {
+                        stage('Docker Backend Test') {
                             steps {
                                 withDockerRegistry([credentialsId: 'dockerhub-creds', url: '']) {
                                     sh '''
