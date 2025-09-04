@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'bachelorarbeit' }
+    agent any
 
     environment {
         IMAGE_NAME_BACKEND  = "simonettifr/backend"
