@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent { label 'bachelorarbeit' }
 
     environment {
         IMAGE_NAME_BACKEND  = "simonettifr/backend"
@@ -34,7 +34,7 @@ pipeline {
                                 }
                             }
                         }
-                        stage('Docker Backend Test') {
+                        stage('Docker Backend') {
                             steps {
                                 withDockerRegistry([credentialsId: 'dockerhub-creds', url: '']) {
                                     sh '''
@@ -68,14 +68,7 @@ pipeline {
                                 dir('frontend') {
                                     withSonarQubeEnv('Sonar') {
                                         script {
-                                            def scannerHome = tool 'SonarScanner'
-                                            sh """
-                                                ${scannerHome}/bin/sonar-scanner \
-                                                  -Dsonar.projectKey=Francesco301100_test123_frontend \
-                                                  -Dsonar.organization=francesco301100 \
-                                                  -Dsonar.sources=src \
-                                                  -Dsonar.host.url=https://sonarcloud.io
-                                            """
+                                            sh "${tool 'SonarScanner'}/bin/sonar-scanner"
                                         }
                                     }
                                 }
